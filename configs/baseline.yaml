@@ -1,0 +1,10 @@
+# configs/baseline.yaml
+mode: A0
+m: 3             # number of identity layers
+d: 128           # feature size per layer
+epsilon_j: [0.1, 0.2, 0.3]
+nu: 0.0
+gamma: 1.0
+steps: 300
+seed: 1
+windows_T: [32, 64]
