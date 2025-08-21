@@ -1,0 +1,11 @@
+# configs/identity.yaml
+mode: A1
+m: 3
+d: 128
+epsilon_j: [0.1, 0.2, 0.3]
+nu: 0.01        # small cross-layer coupling
+gamma: 1.0
+lambda: 1.0     # self regularizer (placeholder)
+kappa: 0.5      # anchor weight (placeholder)
+steps: 300
+seed: 1
