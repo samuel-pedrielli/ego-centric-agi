@@ -3,13 +3,14 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   test-and-toy:
     runs-on: ubuntu-latest
     env:
-    MPLBACKEND: Agg
-  PYTHONPATH: ${{ github.workspace }}
+      MPLBACKEND: Agg
+      PYTHONPATH: ${{ github.workspace }}
 
     steps:
       - name: Checkout
@@ -18,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install deps
         run: |
@@ -27,12 +28,10 @@ jobs:
           pip install pytest pytest-cov
 
       - name: Run unit tests
-        run: |
-          pytest -q
+        run: pytest -q
 
       - name: Baseline (normalizers)
-        run: |
-          python -m EAFCode.toy.run_toy --mode baseline --steps 200 --T 64
+        run: python -m EAFCode.toy.run_toy --mode baseline --steps 200 --T 64
 
       - name: Sweep (toy)
         run: |
