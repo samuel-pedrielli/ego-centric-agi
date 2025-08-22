@@ -16,16 +16,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Show workspace
+        run: |
+          pwd
+          ls -la
+          python -V
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest pytest-cov
+
+      - name: Verify package import path
+        run: |
+          python - << 'PY'
+          import sys, os
+          print("CWD:", os.getcwd())
+          print("PYTHONPATH:", os.environ.get("PYTHONPATH"))
+          import EAFCode
+          print("EAFCode loaded from:", getattr(EAFCode, "__file__", "<no file>"))
+          PY
 
       - name: Run unit tests
         run: pytest -q
@@ -42,6 +59,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: toy-results
+          if-no-files-found: error
           path: |
             results/nu_sweep.csv
             results/stability_curve.png
