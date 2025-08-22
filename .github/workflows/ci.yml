@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-and-toy:
+    runs-on: ubuntu-latest
+    env:
+      MPLBACKEND: Agg   # matplotlib headless
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run unit tests
+        run: |
+          pytest -q
+
+      - name: Baseline (normalizers)
+        run: |
+          python -m EAFCode.toy.run_toy --mode baseline --steps 200 --T 64
+
+      - name: Sweep (toy)
+        run: |
+          python -m EAFCode.toy.run_toy --mode sweep --steps 200 --T 64
+          python -m EAFCode.toy.plot
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: toy-results
+          path: |
+            results/nu_sweep.csv
+            results/stability_curve.png
+            results/normalizers.json
