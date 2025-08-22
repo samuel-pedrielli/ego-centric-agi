@@ -30,13 +30,25 @@ def compute_normalizers(traj, T_list=(32,64), q=0.95):
     M_path = float(np.quantile(np.array(path_vals), q)) if path_vals else 1.0
     return M_rad, M_path
 
-def empirical_stability(V: np.ndarray, last_frac=0.33) -> float:
-    # Return slope of log V over last third of the trajectory (negative = contracting)
+def empirical_stability(V: np.ndarray, last_frac=0.33, vmin=1e-9, stable_slope_tol=-1e-10) -> float:
+    """
+    Return slope of log V over the last fraction of steps.
+    If the tail of V is already below vmin (numerical floor), return a small
+    negative value so it counts as 'stable'.
+    """
     n0 = int(len(V) * (1.0 - last_frac))
-    x = np.arange(n0, len(V))
-    y = np.log(np.maximum(V[n0:], 1e-12))
-    if len(x) < 5:
-        return 0.0
+    tail = V[n0:]
+    if len(tail) < 5:
+        return stable_slope_tol
+    # If tail is numerically floor-level, treat as contracting
+    if np.median(tail) <= vmin or tail[-1] <= vmin:
+        return stable_slope_tol
+    # Otherwise fit slope only on points above the floor
+    mask = tail > vmin
+    if mask.sum() < 5:
+        return stable_slope_tol
+    x = np.arange(n0, len(V))[mask]
+    y = np.log(tail[mask])
     A = np.vstack([x, np.ones_like(x)]).T
     slope, _ = np.linalg.lstsq(A, y, rcond=None)[0]
     return float(slope)
@@ -101,7 +113,8 @@ def main():
             traj = out["traj"]
             V = V_series(traj)
             slope = empirical_stability(V)
-            emp_stable = slope < 0.0
+            emp_stable = (slope < 0.0) or (V[-1] <= 1e-9)
+
             pred_stable = (nu <= threshold)
             # simple composite S using already-computed normalizers
             S_T = composite_S(traj, args.T, M_rad, M_path)
