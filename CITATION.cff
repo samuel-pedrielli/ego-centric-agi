@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it as below."
+title: "ego-centric-agi: toy stability experiment and paper artifacts"
+type: software
+authors:
+  - family-names: Pedrielli
+    given-names: Samuel
+repository-code: "https://github.com/samuel-pedrielli/ego-centric-agi"
+preferred-citation:
+  type: article
+  title: "Ego-centric AGI Safety via Identity Preservation"
+  authors:
+    - family-names: Pedrielli
+      given-names: Samuel
+  year: 2025
+  notes: "GitHub releases: v1.0-submission (SHA f60d019) and v1.1-toy-results (SHA 603fb1b)."
